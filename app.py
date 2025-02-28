@@ -13,7 +13,11 @@ from pathlib import Path
 import cv2
 from flask import Flask, render_template, request, jsonify, flash, redirect, url_for, session, send_from_directory
 
-from config import logger, FACE_TOLERANCE, SCREENSHOTS_DIR, MIN_DETECTION_INTERVAL, TEMP_DIR
+from config import (
+    logger, FACE_TOLERANCE, SCREENSHOTS_DIR, MIN_DETECTION_INTERVAL, 
+    TEMP_DIR, MAX_UPLOAD_SIZE, MAX_PROCESSING_THREADS, FRAME_SCALE,
+    FACE_DETECTION_MODEL
+)
 from modules.face_detector import FaceDetector
 from modules.video_processor import VideoProcessor
 from modules.utils import save_image, clean_old_files, clean_all_temp_directories
@@ -21,7 +25,7 @@ from modules.utils import save_image, clean_old_files, clean_all_temp_directorie
 # 初始化Flask应用
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
-app.config['MAX_CONTENT_LENGTH'] = 600 * 1024 * 1024  # 限制上传文件大小（500MB）
+app.config['MAX_CONTENT_LENGTH'] = MAX_UPLOAD_SIZE  # 使用配置中的上传文件大小限制
 app.config['UPLOAD_FOLDER'] = 'output/uploads'
 app.config['TEMP_FOLDER'] = 'output/temp'
 
@@ -102,8 +106,8 @@ def process_video_task(task_id, video_path, face_path, tolerance):
             logger.error(f"任务不存在: {task_id}")
             return
         
-        # 初始化人脸检测器
-        face_detector = FaceDetector()
+        # 初始化人脸检测器，使用配置中的模型
+        face_detector = FaceDetector(model=FACE_DETECTION_MODEL)
         face_detector.tolerance = float(tolerance)
         
         # 加载参考人脸
@@ -111,8 +115,12 @@ def process_video_task(task_id, video_path, face_path, tolerance):
             task['error'] = '无法加载参考人脸'
             return
         
-        # 初始化视频处理器
-        processor = VideoProcessor(face_detector)
+        # 初始化视频处理器，使用配置中的线程数和缩放比例
+        processor = VideoProcessor(
+            face_detector,
+            max_workers=MAX_PROCESSING_THREADS,
+            frame_scale=FRAME_SCALE
+        )
         # 设置最小检测时间间隔
         processor.min_time_interval = MIN_DETECTION_INTERVAL
         task['processor'] = processor

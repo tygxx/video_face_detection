@@ -13,16 +13,18 @@ from modules.utils import load_image, save_image
 class FaceDetector:
     """人脸检测器类，提供人脸检测和匹配功能"""
     
-    def __init__(self, reference_face_path=None):
+    def __init__(self, reference_face_path=None, model='hog'):
         """
         初始化人脸检测器
         
         Args:
             reference_face_path: 参考人脸图像的路径
+            model: 人脸检测模型，'hog'速度更快，'cnn'精度更高
         """
         self.reference_face_path = reference_face_path
         self.reference_face_encoding = None
         self.tolerance = FACE_TOLERANCE
+        self.model = model  # 使用'hog'模型速度更快，'cnn'精度更高但需要GPU
         
         # 如果提供了参考人脸，立即加载
         if reference_face_path:
@@ -52,7 +54,7 @@ class FaceDetector:
             rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             
             # 检测人脸位置
-            face_locations = face_recognition.face_locations(rgb_image)
+            face_locations = face_recognition.face_locations(rgb_image, model=self.model)
             
             if not face_locations:
                 logger.error(f"未在参考图像中检测到人脸: {face_path}")
@@ -87,7 +89,7 @@ class FaceDetector:
             rgb_image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
             
             # 检测人脸位置
-            face_locations = face_recognition.face_locations(rgb_image)
+            face_locations = face_recognition.face_locations(rgb_image, model=self.model)
             
             # 如果没有检测到人脸，返回空列表
             if not face_locations:
@@ -101,12 +103,13 @@ class FaceDetector:
             logger.error(f"检测人脸异常: {str(e)}")
             return [], []
     
-    def match_faces(self, image):
+    def match_faces(self, image, preprocess=True):
         """
         在图像中查找与参考人脸匹配的人脸
         
         Args:
             image: OpenCV格式的图像
+            preprocess: 是否预处理图像
             
         Returns:
             list: 匹配的人脸位置列表
@@ -120,6 +123,19 @@ class FaceDetector:
             return []
             
         try:
+            # 图像预处理，提高检测效果
+            if preprocess:
+                # 降噪
+                image = cv2.fastNlMeansDenoisingColored(image, None, 10, 10, 7, 21)
+                
+                # 增强对比度
+                lab = cv2.cvtColor(image, cv2.COLOR_BGR2LAB)
+                l, a, b = cv2.split(lab)
+                clahe = cv2.createCLAHE(clipLimit=3.0, tileGridSize=(8, 8))
+                cl = clahe.apply(l)
+                updated_lab = cv2.merge((cl, a, b))
+                image = cv2.cvtColor(updated_lab, cv2.COLOR_LAB2BGR)
+            
             # 检测所有人脸
             face_locations, face_encodings = self.detect_faces(image)
             
@@ -187,12 +203,13 @@ class FaceDetector:
         
         return result
     
-    def process_frame(self, frame):
+    def process_frame(self, frame, preprocess=False):
         """
         处理视频帧，检测匹配的人脸并标记
         
         Args:
             frame: 视频帧
+            preprocess: 是否进行图像预处理
             
         Returns:
             tuple: (processed_frame, matches, has_matches)
@@ -207,7 +224,7 @@ class FaceDetector:
             
         try:
             # 匹配人脸
-            matches = self.match_faces(frame)
+            matches = self.match_faces(frame, preprocess=preprocess)
             
             # 如果有匹配的人脸，标记它们
             if matches:

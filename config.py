@@ -39,6 +39,14 @@ FILE_RETENTION_DAYS = int(os.getenv('FILE_RETENTION_DAYS', 7))
 # 检测结果最小时间间隔（秒）
 MIN_DETECTION_INTERVAL = float(os.getenv('MIN_DETECTION_INTERVAL', 2.0))
 
+# 上传文件大小限制（MB）
+MAX_UPLOAD_SIZE = int(os.getenv('MAX_UPLOAD_SIZE', 600)) * 1024 * 1024
+
+# 性能优化相关设置
+MAX_PROCESSING_THREADS = int(os.getenv('MAX_PROCESSING_THREADS', 4))
+FRAME_SCALE = float(os.getenv('FRAME_SCALE', 0.5))
+FACE_DETECTION_MODEL = os.getenv('FACE_DETECTION_MODEL', 'hog')
+
 # 日志配置
 LOG_LEVEL = os.getenv('LOG_LEVEL', 'INFO').upper()
 LOG_FILE = LOGS_DIR / 'app.log'
