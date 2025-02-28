@@ -1,0 +1,139 @@
+/* 全局样式 */
+body {
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    background-color: #f8f9fa;
+    color: #343a40;
+}
+
+/* 卡片样式 */
+.card {
+    border-radius: 10px;
+    overflow: hidden;
+    transition: transform 0.3s, box-shadow 0.3s;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.card-header {
+    font-weight: 600;
+}
+
+/* 按钮样式 */
+.btn {
+    border-radius: 5px;
+    font-weight: 500;
+    transition: all 0.3s;
+}
+
+.btn-primary {
+    background-color: #4285f4;
+    border-color: #4285f4;
+}
+
+.btn-primary:hover {
+    background-color: #3367d6;
+    border-color: #3367d6;
+}
+
+.btn-success {
+    background-color: #34a853;
+    border-color: #34a853;
+}
+
+.btn-success:hover {
+    background-color: #2e8f49;
+    border-color: #2e8f49;
+}
+
+.btn-danger {
+    background-color: #ea4335;
+    border-color: #ea4335;
+}
+
+.btn-danger:hover {
+    background-color: #d33426;
+    border-color: #d33426;
+}
+
+/* 表单元素 */
+.form-control {
+    border-radius: 5px;
+    border: 1px solid #ced4da;
+    transition: border-color 0.3s;
+}
+
+.form-control:focus {
+    border-color: #4285f4;
+    box-shadow: 0 0 0 0.2rem rgba(66, 133, 244, 0.25);
+}
+
+/* 进度条 */
+.progress {
+    height: 20px;
+    border-radius: 10px;
+    background-color: #e9ecef;
+    overflow: hidden;
+}
+
+.progress-bar {
+    background-color: #4285f4;
+}
+
+/* 表格样式 */
+.table {
+    margin-bottom: 0;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    border-top: none;
+}
+
+.table td {
+    vertical-align: middle;
+}
+
+/* 缩略图 */
+.thumbnail {
+    width: 100px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.thumbnail:hover {
+    transform: scale(1.05);
+}
+
+/* 模态框 */
+.modal-content {
+    border-radius: 10px;
+    overflow: hidden;
+}
+
+.modal-header {
+    background-color: #4285f4;
+    color: white;
+}
+
+/* 动画效果 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.fade-in {
+    animation: fadeIn 0.5s;
+}
+
+/* 响应式调整 */
+@media (max-width: 768px) {
+    .card {
+        margin-bottom: 20px;
+    }
+} 
